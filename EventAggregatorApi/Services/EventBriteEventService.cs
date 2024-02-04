@@ -5,11 +5,11 @@ using EventAggregatorApi.Repositories;
 namespace EventAggregatorApi.Services {
     public class EventBriteEventService : IEventBriteEventService{
 
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private IEventBriteEventRepository _repository;
 
-        public EventBriteEventService(HttpClient httpClient, IEventBriteEventRepository eventBriteEventRepository) {
-            _httpClient = httpClient;
+        public EventBriteEventService(IHttpClientFactory httpClientFactory, IEventBriteEventRepository eventBriteEventRepository) {
+            _httpClientFactory = httpClientFactory;
             _repository = eventBriteEventRepository;
         }// end constructor
 
