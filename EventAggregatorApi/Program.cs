@@ -1,10 +1,10 @@
-// Add: Dependencies: EntityFrameworkCore, EntityFrameworkCore.SqlServer, EntityFrameworkCore.Design, EntityFrameworkCore.Tools
+// Add: Dependencies: EntityFrameworkCore, EntityFrameworkCore.SqlServer, EntityFrameworkCore.Design, EntityFrameworkCore.Tools, EntityFrameworkCore.InMemory (for unit testing and Moq dbs)
 // Install: SqlServer on machine
 // Install: SSMS on machine
 // Connect: to server via SSMS and Create Database
 // Add: ConnectionStrings property with db connection string to appsettings.json file 
 // Add: Usings for Entity Framework
-// Create: project Folder structure (Controllers, Services, Models, DTOs, Repositories, Data)
+// Create: project Folder structure (Controllers, Services, Models, DTOs, Interfaces, Repositories, Data)
 // Create: Test Project for unit Test
 // Add: AppDbContext.cs file for DBSets<> in "Data"
 // Configure: DB Services to AddDbContext so that your AppDbContext uses your sql server database in Program.cs

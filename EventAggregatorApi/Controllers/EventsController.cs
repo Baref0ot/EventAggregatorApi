@@ -8,8 +8,10 @@ namespace EventAggregatorApi.Controllers {
 
         [Route("get/allevents")]
         [HttpGet]
+
         public IActionResult GetAllEvents() {
             return Ok();
         }// end GetAllEvents
+
     }// end controller
 }
