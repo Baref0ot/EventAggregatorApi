@@ -14,56 +14,72 @@ using EventAggregatorApi.Interfaces;
 using EventAggregatorApi.Services;
 using Moq.Protected;
 using System.Net;
+using EventAggregatorApi.Models;
 
 namespace EventAggregatorApi.Tests.EventTest {
     public class EventBriteServiceTest {
 
-  
-        private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-        private readonly Mock<IEventBriteEventRepository> _mockRepo = new Mock<IEventBriteEventRepository>();
-        private HttpClient _httpClient;
-        private EventBriteEventService _service;
+        private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new Mock<IHttpClientFactory>();
+        private readonly Mock<IEventBriteEventRepository> _eventBriteRepositoryMock = new Mock<IEventBriteEventRepository>();
+        private readonly EventBriteEventService _eventBriteService;
+         
+        public EventBriteServiceTest() {
 
-        // Constructor
-        public EventBriteServiceTest(IHttpClientFactory httpClientFactory) {
+            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
-            // Create a mocked responseMessage that a typical API would return.
-            var response = new HttpResponseMessage {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("[{\"name\":\"Event 1\"}, {\"name\":\"Event 2\"}]"),
-            };
+            // dummy JSON 
+            var jsonContent = @"{
+              ""categories"": [
+                {
+                  ""id"": ""103"",
+                  ""name"": ""Music"",
+                  ""name_localized"": ""Music"",
+                  ""short_name"": ""Music"",
+                  ""short_name_localized"": ""Music""
+                }
+              ]
+            }";
 
-            // Setting up the Mocked SendAsync behavior. Any HttpRequestMessage and CancelationTokens should be handled.
-            _mockHttpMessageHandler.Protected()
+            // Mocked http request and response
+            mockHttpMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.IsAny<HttpRequestMessage>(),
                     ItExpr.IsAny<CancellationToken>()
                 )
-                .ReturnsAsync(response);
+                .ReturnsAsync(new HttpResponseMessage {
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
+                });
 
-            // Setting up the HttpClient to use the Mocked MessageHandler we created above so that we do not make any real network request for testing with this httpClient.
-            _httpClient = httpClientFactory.CreateClient("TestClient");
-            
-            _httpClient._mockHttpMessageHandler.Object) {
+            // create an httpClient Object
+            var client = new HttpClient(mockHttpMessageHandler.Object) {
                 BaseAddress = new Uri("https://www.eventbriteapi.com/v3/")
             };
 
-            _service = new EventBriteEventService(httpClientFactory, _mockRepo.Object);
-        }// end constructor
+            // Sets up the mocked HttpClientFactory to return a pre-configured HttpClient instance whenever CreateClient is called with any string argument.
+            // This ensures that all HTTP requests made through this factory within the test context use the mocked HttpClient,
+            // allowing for controlled testing of HTTP interactions without actual network calls.
+            _httpClientFactoryMock.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(client);
+
+            // EventBriteEventService constructor accepts an HttpClientFactory and IEventBriteEventRepository
+            _eventBriteService = new EventBriteEventService(_httpClientFactoryMock.Object, _eventBriteRepositoryMock.Object);
+        
+        }// end construnctor
+
+
+                 
 
         [Fact]
-        public async Task EventService_GetEventCategoriesAsync_ReturnsEvents() {
+        public async Task EventService_GetEventCategoriesAsync_ReturnsCategoryList() {
 
             // arrange done in the constructor
 
             // act
-            var events = await _service.GetEventCategoriesAsync();
-
+            var result = await _eventBriteService.GetEventCategoriesAsync();
 
             // assert
-            events.Should().HaveCount(0);
-
+            result.Should().BeOfType<List<Category>>();
 
         }
 
