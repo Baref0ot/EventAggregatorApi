@@ -14,14 +14,23 @@
 // Ensure: A valid SSL certificate is obtained from a certified authority fo production application and the sql server it will be talking to
     /* if development or testing environment is used, you can add "TrustServerCertificate=True" to your connection string to bypass SSL.*/
 // Apply: Apply the migration to your database "Update-database"
+// Create: API Controllers
+// Register: di your dependicies via constructor injection and register in Program.cs
+// Register: your a HttpClient with a client baseAddress URI and client DefaultRequestHeaders for Authorization with API Keys
+// Use: Use your named HttpClient in your service by requesting it from IHttpClientFactory
+// Impliment: Your GET Request method to Get API data using the named client
 
 
 
 using Microsoft.EntityFrameworkCore;
 using EventAggregatorApi.Data;
+using EventAggregatorApi.Services;
+using EventAggregatorApi.Interfaces;
+using EventAggregatorApi.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
+var ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Add services to the container.
 
@@ -31,7 +40,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(ConnectionString));
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IEventBriteEventService, EventBriteEventService>();
+builder.Services.AddScoped<IEventBriteEventRepository, EventBriteEventRepository>();
+
+builder.Services.AddHttpClient("EventBriteClient", client => {
+    client.BaseAddress = new Uri("https://www.eventbriteapi.com/v3/");
+    client.DefaultRequestHeaders.Add("Authorization", "");
+
+});
+
 
 var app = builder.Build();
 

@@ -3,7 +3,7 @@
 namespace EventAggregatorApi.Interfaces {
     public interface IEventBriteEventService {
 
-        public Task<IEnumerable<EventBriteEvent>> GetAllEventsAsync();
+        public Task<IEnumerable<Category>> GetEventCategoriesAsync();
 
     }// end interface
 }

@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EventAggregatorApi.Models;
 using EventAggregatorApi.Interfaces;
+using EventAggregatorApi.Data;
 
 namespace EventAggregatorApi.Repositories {
     public class EventBriteEventRepository : IEventBriteEventRepository{
 
-        private DbContext _context;
+        private AppDbContext _context;
 
-        public EventBriteEventRepository(DbContext context) {
+        public EventBriteEventRepository(AppDbContext context) {
             _context = context;
         }
 

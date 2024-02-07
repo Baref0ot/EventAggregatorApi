@@ -25,7 +25,7 @@ namespace EventAggregatorApi.Tests.EventTest {
         private EventBriteEventService _service;
 
         // Constructor
-        public EventBriteServiceTest() {
+        public EventBriteServiceTest(IHttpClientFactory httpClientFactory) {
 
             // Create a mocked responseMessage that a typical API would return.
             var response = new HttpResponseMessage {
@@ -43,24 +43,26 @@ namespace EventAggregatorApi.Tests.EventTest {
                 .ReturnsAsync(response);
 
             // Setting up the HttpClient to use the Mocked MessageHandler we created above so that we do not make any real network request for testing with this httpClient.
-            _httpClient = new HttpClient(_mockHttpMessageHandler.Object) {
+            _httpClient = httpClientFactory.CreateClient("TestClient");
+            
+            _httpClient._mockHttpMessageHandler.Object) {
                 BaseAddress = new Uri("https://www.eventbriteapi.com/v3/")
             };
 
-            _service = new EventBriteEventService(_httpClient, _mockRepo.Object);
+            _service = new EventBriteEventService(httpClientFactory, _mockRepo.Object);
         }// end constructor
 
         [Fact]
-        public async Task GetAllEventsAsync_ReturnsEvents() {
+        public async Task EventService_GetEventCategoriesAsync_ReturnsEvents() {
 
             // arrange done in the constructor
 
             // act
-            var events = await _service.GetAllEventsAsync();
+            var events = await _service.GetEventCategoriesAsync();
 
 
             // assert
-            events.Should().HaveCount(2);
+            events.Should().HaveCount(0);
 
 
         }
